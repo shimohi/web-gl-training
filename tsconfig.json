@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "declaration":false,
+    "sourceMap": true,
+    "inlineSourceMap":false,
+    "inlineSources":true,
+    "lib": ["es5", "es2015.promise", "dom"]
+  },
+  "exclude": [
+    "lib",
+    "artifact",
+    "node_modules"
+  ]
+}
