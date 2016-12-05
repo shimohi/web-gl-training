@@ -28,10 +28,14 @@ webGLtraining.init = () => {
 	const prg = ShaderUtils.loadShaderProgram(gl, <string>sample_vertex_vert, <string>sample_fragment_frag);
 
 	// attributeLocationの取得
-	const attLocation = gl.getAttribLocation(prg, "position");
+	const attLocations: number[] = [];
+	attLocations[0] = gl.getAttribLocation(prg, "position");
+	attLocations[1] = gl.getAttribLocation(prg, "color");
 
 	// attributeの要素数(この場合は xyz の3要素)
-	const attStride = 3;
+	const attStrides: number[] = [];
+	attStrides[0] = 3;
+	attStrides[1] = 4;
 
 	// モデル(頂点)データ
 	const vertex_position = [
@@ -40,26 +44,34 @@ webGLtraining.init = () => {
 		-1.0, 0.0, 0.0
 	];
 
+	const vertex_color = [
+		1.0, 0.0, 0.0, 1.0,
+		0.0, 1.0, 0.0, 1.0,
+		0.0, 0.0, 1.0, 1.0
+	];
+
 	// VBOの生成
-	const vbo = ShaderUtils.createVbo(gl, vertex_position);
+	const position_vbo = ShaderUtils.createVbo(gl, vertex_position);
+	const color_vbo = ShaderUtils.createVbo(gl, vertex_color);
 
-	// VBOをバインド
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+	// 位置情報のバインド
+	gl.bindBuffer(gl.ARRAY_BUFFER, position_vbo);
+	gl.enableVertexAttribArray(attLocations[0]);
+	gl.vertexAttribPointer(attLocations[0], attStrides[0], gl.FLOAT, false, 0, 0);
 
-	// attribute属性を有効にする
-	gl.enableVertexAttribArray(attLocation);
+	// 色情報のバインド
+	gl.bindBuffer(gl.ARRAY_BUFFER, color_vbo);
+	gl.enableVertexAttribArray(attLocations[1]);
+	gl.vertexAttribPointer(attLocations[1], attStrides[1], gl.FLOAT, false, 0, 0);
 
-	// attribute属性を登録
-	gl.vertexAttribPointer(attLocation, attStride, gl.FLOAT, false, 0, 0);
-
-	// // minMatrix.js を用いた行列関連処理
-	// // matIVオブジェクトを生成
-	// var m = new matIV();
+	// uniformLocationの取得
+	const uniLocation = gl.getUniformLocation(prg, "mvpMatrix");
 
 	// 各種行列の生成と初期化
 	const mMatrix = Mat4Utils.identity(Mat4Utils.create());
 	const vMatrix = Mat4Utils.identity(Mat4Utils.create());
 	const pMatrix = Mat4Utils.identity(Mat4Utils.create());
+	const tmpMatrix = Mat4Utils.identity(Mat4Utils.create());
 	const mvpMatrix = Mat4Utils.identity(Mat4Utils.create());
 
 	// ビュー座標変換行列
@@ -67,13 +79,17 @@ webGLtraining.init = () => {
 
 	// プロジェクション座標変換行列
 	Mat4Utils.perspective(90, c.width / c.height, 0.1, 100, pMatrix);
+	Mat4Utils.multiply(pMatrix, vMatrix, tmpMatrix);
 
-	// 各行列を掛け合わせ座標変換行列を完成させる
-	Mat4Utils.multiply(pMatrix, vMatrix, mvpMatrix);
-	Mat4Utils.multiply(mvpMatrix, mMatrix, mvpMatrix);
+	// 一つ目のモデルを移動するためのモデル座標変換行列
+	Mat4Utils.translate(mMatrix, [1.5, 0.0, 0.0], mMatrix);
 
-	// uniformLocationの取得
-	const uniLocation = gl.getUniformLocation(prg, "mvpMatrix");
+	// モデル×ビュー×プロジェクション(一つ目のモデル)
+	Mat4Utils.multiply(tmpMatrix, mMatrix, mvpMatrix);
+
+	// // 各行列を掛け合わせ座標変換行列を完成させる
+	// Mat4Utils.multiply(pMatrix, vMatrix, mvpMatrix);
+	// Mat4Utils.multiply(mvpMatrix, mMatrix, mvpMatrix);
 
 	// uniformLocationへ座標変換行列を登録
 	gl.uniformMatrix4fv(uniLocation, false, mvpMatrix);
@@ -81,7 +97,20 @@ webGLtraining.init = () => {
 	// モデルの描画
 	gl.drawArrays(gl.TRIANGLES, 0, 3);
 
+	// 二つ目のモデルを移動するためのモデル座標変換行列
+	Mat4Utils.identity(mMatrix);
+	Mat4Utils.translate(mMatrix, [-1.5, 0.0, 0.0], mMatrix);
+
+	// モデル×ビュー×プロジェクション(二つ目のモデル)
+	Mat4Utils.multiply(tmpMatrix, mMatrix, mvpMatrix);
+
+	// uniformLocationへ座標変換行列を登録し描画する(二つ目のモデル)
+	gl.uniformMatrix4fv(uniLocation, false, mvpMatrix);
+	gl.drawArrays(gl.TRIANGLES, 0, 3);
+
 	// コンテキストの再描画
 	gl.flush();
 
 };
+
+
