@@ -54,15 +54,17 @@ webGLtraining.init = () => {
 	const position_vbo = ShaderUtils.createVbo(gl, vertex_position);
 	const color_vbo = ShaderUtils.createVbo(gl, vertex_color);
 
-	// 位置情報のバインド
-	gl.bindBuffer(gl.ARRAY_BUFFER, position_vbo);
-	gl.enableVertexAttribArray(attLocations[0]);
-	gl.vertexAttribPointer(attLocations[0], attStrides[0], gl.FLOAT, false, 0, 0);
+	ShaderUtils.setAttribute(gl, [position_vbo, color_vbo], attLocations, attStrides);
 
-	// 色情報のバインド
-	gl.bindBuffer(gl.ARRAY_BUFFER, color_vbo);
-	gl.enableVertexAttribArray(attLocations[1]);
-	gl.vertexAttribPointer(attLocations[1], attStrides[1], gl.FLOAT, false, 0, 0);
+	// // 位置情報のバインド
+	// gl.bindBuffer(gl.ARRAY_BUFFER, position_vbo);
+	// gl.enableVertexAttribArray(attLocations[0]);
+	// gl.vertexAttribPointer(attLocations[0], attStrides[0], gl.FLOAT, false, 0, 0);
+	//
+	// // 色情報のバインド
+	// gl.bindBuffer(gl.ARRAY_BUFFER, color_vbo);
+	// gl.enableVertexAttribArray(attLocations[1]);
+	// gl.vertexAttribPointer(attLocations[1], attStrides[1], gl.FLOAT, false, 0, 0);
 
 	// uniformLocationの取得
 	const uniLocation = gl.getUniformLocation(prg, "mvpMatrix");

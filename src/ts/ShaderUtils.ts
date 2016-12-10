@@ -91,7 +91,7 @@ export class ShaderUtils {
 	static createVbo(
 		gl: WebGLRenderingContext,
 		data: number[]
-	) {
+	): WebGLBuffer {
 
 		// バッファオブジェクトの生成
 		const vbo = gl.createBuffer();
@@ -107,5 +107,31 @@ export class ShaderUtils {
 
 		// 生成した VBO を返して終了
 		return vbo;
+	}
+
+	// VBOをバインドし登録する関数
+	static setAttribute(
+		gl: WebGLRenderingContext,
+		vbo: WebGLBuffer[],
+		attL: number[],
+		attS: number[]
+	): void {
+
+		// 引数として受け取った配列を処理する
+		let i = 0 | 0;
+		const len = vbo.length;
+		while (i < len) {
+
+			// バッファをバインドする
+			gl.bindBuffer(gl.ARRAY_BUFFER, vbo[i]);
+
+			// attributeLocationを有効にする
+			gl.enableVertexAttribArray(attL[i]);
+
+			// attributeLocationを通知し登録する
+			gl.vertexAttribPointer(attL[i], attS[i], gl.FLOAT, false, 0, 0);
+
+			i = ( i + 1 ) | 0;
+		}
 	}
 }
