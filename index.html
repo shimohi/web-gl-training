@@ -4,17 +4,24 @@
     <script src="dist/bundle.js" type="text/javascript"></script>
     <!--<script src="src/ts/script.js" type="text/javascript"></script>-->
     <!--<script src="src/ts/minMatrix.js" type="text/javascript"></script>-->
-
     <!--<script id="vs" type="x-shader/x-vertex" src="src/glsl/sample-vertex.vert" ></script>-->
     <!--<script id="fs" type="x-shader/x-fragment" src="src/glsl/sample-fragment.frag"></script>-->
     <script type="text/javascript">
         window.onload = function () {
 			webGLtraining.init();
 		};
-
     </script>
 </head>
 <body>
-<canvas id="canvas"></canvas>
+<div style="display:flex;justify-content:space-around;">
+    <div>
+        <p>training01</p>
+        <canvas id="canvas01"></canvas>
+    </div>
+    <div>
+        <p>training02</p>
+        <canvas id="canvas02"></canvas>
+    </div>
+</div>
 </body>
 </html>
