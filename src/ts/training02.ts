@@ -54,7 +54,7 @@ export class Training02 {
 		ShaderUtils.setAttribute(gl, [position_vbo, color_vbo], attLocations, attStrides);
 
 		// uniformLocationの取得
-		const uniLocation = gl.getUniformLocation(prg, "mvpMatrix");
+		const uniLocation = gl.getUniformLocation(prg, "mvpMatrix")!;
 
 		// 各種行列の生成と初期化
 		const mMatrix = Mat4Utils.identity(Mat4Utils.create());
@@ -64,46 +64,116 @@ export class Training02 {
 		const mvpMatrix = Mat4Utils.identity(Mat4Utils.create());
 
 		// ビュー座標変換行列
-		Mat4Utils.lookAt([ 0.0, 1.0, 3.0], [0, 0, 0], [0, 1, 0], vMatrix);
+		Mat4Utils.lookAt([ 0.0, 0.0, 2.0], [0, 0, 0], [0, 1, 0], vMatrix);
 
 		// プロジェクション座標変換行列
 		Mat4Utils.perspective(90, c.width / c.height, 0.1, 100, pMatrix);
 		Mat4Utils.multiply(pMatrix, vMatrix, tmpMatrix);
 
-		// カウンタの宣言
-		let count = 0;
-
-		(function(){
-
-		})();
-
-
-		// 一つ目のモデルを移動するためのモデル座標変換行列
-		Mat4Utils.translate(mMatrix, [1.5, 0.0, 0.0], mMatrix);
-
-		// モデル×ビュー×プロジェクション(一つ目のモデル)
-		Mat4Utils.multiply(tmpMatrix, mMatrix, mvpMatrix);
-
-		// uniformLocationへ座標変換行列を登録
-		gl.uniformMatrix4fv(uniLocation, false, mvpMatrix);
-
-		// モデルの描画
-		gl.drawArrays(gl.TRIANGLES, 0, 3);
-
-		// 二つ目のモデルを移動するためのモデル座標変換行列
-		Mat4Utils.identity(mMatrix);
-		Mat4Utils.translate(mMatrix, [-1.5, 0.0, 0.0], mMatrix);
-
-		// モデル×ビュー×プロジェクション(二つ目のモデル)
-		Mat4Utils.multiply(tmpMatrix, mMatrix, mvpMatrix);
-
-		// uniformLocationへ座標変換行列を登録し描画する(二つ目のモデル)
-		gl.uniformMatrix4fv(uniLocation, false, mvpMatrix);
-		gl.drawArrays(gl.TRIANGLES, 0, 3);
-
-		// コンテキストの再描画
-		gl.flush();
+		const training02 = new Training02(
+			gl, uniLocation, tmpMatrix, mMatrix, mvpMatrix
+		);
+		training02.render();
 	}
+
+	private count: number;
+
+	constructor(
+		private gl: WebGLRenderingContext,
+		private mvpMatrixLocation: WebGLUniformLocation,
+		private baseMatrix: Float32Array,
+		private workMatrix1: Float32Array,
+		private workMatrix2: Float32Array
+	) {
+		this.count = 0;
+	}
+
+	private render: () => void = () => {
+
+		const gl = this.gl;
+
+		// canvasを初期化
+		gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		gl.clearDepth(1.0);
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+		// カウンタをインクリメントする
+		this.count++;
+
+		// カウンタを元にラジアンを算出
+		const rad = (this.count % 360) * Math.PI / 180;
+
+		this.setModel1(rad);
+		this.setModel2(rad);
+		this.setModel3(rad);
+
+		gl.flush();
+
+		// ループのために再帰呼び出し
+		setTimeout(this.render, 1000 / 30);
+	}
+
+	private setModel1(
+		rad: number
+	): void {
+
+		// モデル1は円の軌道を描き移動する
+		const x = Math.cos(rad);
+		const y = Math.sin(rad);
+		const mMatrix = this.workMatrix1;
+		const mvpMatrix = this.workMatrix2;
+		const gl = this.gl;
+
+		Mat4Utils.identity(mMatrix);
+		Mat4Utils.translate(mMatrix, [x, y + 1.0, 0.0], mMatrix);
+
+		// モデル1の座標変換行列を完成させレンダリングする
+		Mat4Utils.multiply(this.baseMatrix, mMatrix, mvpMatrix);
+		gl.uniformMatrix4fv(this.mvpMatrixLocation, false, mvpMatrix);
+		gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+	}
+
+	private setModel2(
+		rad: number
+	): void {
+
+		const mMatrix = this.workMatrix1;
+		const mvpMatrix = this.workMatrix2;
+		const gl = this.gl;
+
+		// モデル2はY軸を中心に回転する
+		Mat4Utils.identity(mMatrix);
+		Mat4Utils.translate(mMatrix, [1.0, -1.0, 0.0], mMatrix);
+		Mat4Utils.rotate(mMatrix, rad, [0, 1, 0], mMatrix);
+
+		// モデル2の座標変換行列を完成させレンダリングする
+		Mat4Utils.multiply(this.baseMatrix, mMatrix, mvpMatrix);
+		gl.uniformMatrix4fv(this.mvpMatrixLocation, false, mvpMatrix);
+		gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+	}
+
+	private setModel3(
+		rad: number
+	): void {
+
+		const mMatrix = this.workMatrix1;
+		const mvpMatrix = this.workMatrix2;
+		const gl = this.gl;
+
+		// モデル3は拡大縮小する
+		const s = Math.sin(rad) + 1.0;
+		Mat4Utils.identity(mMatrix);
+		Mat4Utils.translate(mMatrix, [-1.0, -1.0, 0.0], mMatrix);
+		Mat4Utils.scale(mMatrix, [s, s, 0.0], mMatrix);
+
+		// モデル3の座標変換行列を完成させレンダリングする
+		Mat4Utils.multiply(this.baseMatrix, mMatrix, mvpMatrix);
+		gl.uniformMatrix4fv(this.mvpMatrixLocation, false, mvpMatrix);
+		gl.drawArrays(gl.TRIANGLES, 0, 3);
+	}
+
 }
 
 

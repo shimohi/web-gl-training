@@ -19,7 +19,7 @@ export class ShaderUtils {
 
 		const shader = gl.createShader(gl.VERTEX_SHADER);
 		return ShaderUtils.setupShader(
-			gl, shader, glsl
+			gl, shader!, glsl
 		);
 
 	}
@@ -31,7 +31,7 @@ export class ShaderUtils {
 
 		const shader = gl.createShader(gl.FRAGMENT_SHADER);
 		return ShaderUtils.setupShader(
-			gl, shader, glsl
+			gl, shader!, glsl
 		);
 
 	}
@@ -54,7 +54,9 @@ export class ShaderUtils {
 			// 成功していたらシェーダを返して終了
 			return shader;
 		}
-		throw new Error(gl.getShaderInfoLog(shader));
+
+		const message = gl.getShaderInfoLog(shader);
+		throw new Error(message === null ? "" : message );
 	}
 
 	static createShaderProgram(
@@ -64,7 +66,7 @@ export class ShaderUtils {
 	): WebGLProgram {
 
 		// プログラムオブジェクトの生成
-		const program = gl.createProgram();
+		const program = gl.createProgram()!;
 
 		// プログラムオブジェクトにシェーダを割り当てる
 		gl.attachShader(program, vertexShader);
@@ -85,7 +87,8 @@ export class ShaderUtils {
 		}
 
 		// 失敗していたらエラーログをアラートする
-		throw new Error(gl.getProgramInfoLog(program));
+		const message = gl.getProgramInfoLog(program);
+		throw new Error(message === null ? "" : message );
 	}
 
 	static createVbo(
@@ -106,7 +109,7 @@ export class ShaderUtils {
 		gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
 		// 生成した VBO を返して終了
-		return vbo;
+		return vbo!;
 	}
 
 	// VBOをバインドし登録する関数

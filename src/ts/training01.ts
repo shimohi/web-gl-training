@@ -54,7 +54,7 @@ export class Training01 {
 		ShaderUtils.setAttribute(gl, [position_vbo, color_vbo], attLocations, attStrides);
 
 		// uniformLocationの取得
-		const uniLocation = gl.getUniformLocation(prg, "mvpMatrix");
+		const uniLocation = gl.getUniformLocation(prg, "mvpMatrix")!;
 
 		// 各種行列の生成と初期化
 		const mMatrix = Mat4Utils.identity(Mat4Utils.create());
