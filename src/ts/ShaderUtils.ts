@@ -137,4 +137,25 @@ export class ShaderUtils {
 			i = ( i + 1 ) | 0;
 		}
 	}
+
+	static createIbo(
+		gl: WebGLRenderingContext,
+		data: number[]
+	): WebGLBuffer {
+
+		// バッファオブジェクトの生成
+		const ibo = gl.createBuffer()!;
+
+		// バッファをバインドする
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+
+		// バッファにデータをセット
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Int16Array(data), gl.STATIC_DRAW);
+
+		// バッファのバインドを無効化
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+		// 生成したIBOを返して終了
+		return ibo;
+	}
 }

@@ -1,5 +1,6 @@
 import {Training01} from "./training01";
 import {Training02} from "./training02";
+import {Training03} from "./training03";
 
 const webGLtraining: any = (<any>window).webGLtraining ? (<any>window).webGLtraining : {};
 if (!(<any>window).webGLtraining) {
@@ -13,6 +14,9 @@ webGLtraining.init = () => {
 
 	// training02
 	Training02.action("canvas02");
+
+	// training03
+	Training03.action("canvas03");
 };
 
 
